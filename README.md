@@ -1,19 +1,19 @@
-# Welcome to Iobj - Properties for Python 3
+# Welcome to Bento - Properties for Python 3
 
-Iobj is a library that implements defined types properties for Python 3.
+Bento is a library that implements defined types properties for Python 3.
 
 ## Example
 
-The best way to show how Iobj properties works is by a simple example:
+The best way to show how Bento properties works is by a simple example:
 
 ```
 #!python
 
-from core.objects import Iobj
+from core.objects import Bento
 from core.properties import NumberProperty, StringProperty
 
 
-class User(Iobj):
+class User(Bento):
     name = StringProperty()
     phone = NumberProperty()
 
