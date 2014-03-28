@@ -32,47 +32,38 @@ class _BentobjMetaclass(type):
         return super(_BentobjMetaclass, cls).__new__(cls, name, bases, dct)
 
 
-# Create the base class according to python version
-# Base class definition for Python 3 is not in the same 
-#   file because it raises an syntax error when running
-#   in a Python 2 environment.
-if sys.version_info.major == 3:
-    from bento._p3k_metaclass import get_p3k_metaclass
-    _Bentobjct = get_p3k_metaclass(_BentobjMetaclass)
-
-else:
-    class _Bentobjct(object):
-        __metaclass__ = _BentobjMetaclass
 
 
-class Bento(_Bentobjct):
 
-    def __init__(self, *args, **kwargs):
+class _Bento(object):
+    __metaclass__ = _BentobjMetaclass
+
+    # def __init__(self, *args, **kwargs):
         
-        self._cached_properties = {} #cache for define_ functions
-        self._strongly_cached_properties = set() # define_functions which will never be removed from cache
-        self._set_consecutive_arguments(args)
+    #     self._cached_properties = {} #cache for define_ functions
+    #     self._strongly_cached_properties = set() # define_functions which will never be removed from cache
+    #     self._set_consecutive_arguments(args)
 
-        for prop_name in self._consecutive_arguments[len(args):]:
-            prop = self.__class__.__getattribute__(self.__class__,prop_name)
-            if prop.required_property:
-                if not prop_name in kwargs.keys():
-                    if not hasattr(self, "init_%s" % prop_name) and not hasattr(self.__class__, "define_%s" % prop_name):
-                        raise TypeError("Missing required value: '%s'" % prop_name)
+    #     for prop_name in self._consecutive_arguments[len(args):]:
+    #         prop = self.__class__.__getattribute__(self.__class__,prop_name)
+    #         if prop.required_property:
+    #             if not prop_name in kwargs.keys():
+    #                 if not hasattr(self, "init_%s" % prop_name) and not hasattr(self.__class__, "define_%s" % prop_name):
+    #                     raise TypeError("Missing required value: '%s'" % prop_name)
         
-        self.__explicity_values = []
-        for key,value in kwargs.items():
-            if key in self._core_properties:
-                #TODO: locked
-                # if isinstance(self.__class__.__getattribute__(self.__class__,key), LockedProperty):
-                #     print(8888)
-                self.__explicity_values.append(key)
-                setattr(self, key, value)
-            else:
-                raise UnexpectedArgumentError("Got an unexpected key: '%s'" % key)
+    #     self.__explicity_values = []
+    #     for key,value in kwargs.items():
+    #         if key in self._core_properties:
+    #             #TODO: locked
+    #             # if isinstance(self.__class__.__getattribute__(self.__class__,key), LockedProperty):
+    #             #     print(8888)
+    #             self.__explicity_values.append(key)
+    #             setattr(self, key, value)
+    #         else:
+    #             raise UnexpectedArgumentError("Got an unexpected key: '%s'" % key)
         
-        self._lazy_pointers = {}
-        self._define_properties()
+    #     self._lazy_pointers = {}
+    #     self._define_properties()
 
 
     def _define_properties(self):
@@ -189,6 +180,34 @@ class Bento(_Bentobjct):
                     getattr(self, arg)
 
 
+class Bento(_Bento):
+
+    def __init__(self, *args, **kwargs):
+        
+        self._cached_properties = {} #cache for define_ functions
+        self._strongly_cached_properties = set() # define_functions which will never be removed from cache
+        self._set_consecutive_arguments(args)
+
+        for prop_name in self._consecutive_arguments[len(args):]:
+            prop = self.__class__.__getattribute__(self.__class__,prop_name)
+            if prop.required_property:
+                if not prop_name in kwargs.keys():
+                    if not hasattr(self, "init_%s" % prop_name) and not hasattr(self.__class__, "define_%s" % prop_name):
+                        raise TypeError("Missing required value: '%s'" % prop_name)
+        
+        self.__explicity_values = []
+        for key,value in kwargs.items():
+            if key in self._core_properties:
+                #TODO: locked
+                # if isinstance(self.__class__.__getattribute__(self.__class__,key), LockedProperty):
+                #     print(8888)
+                self.__explicity_values.append(key)
+                setattr(self, key, value)
+            else:
+                raise UnexpectedArgumentError("Got an unexpected key: '%s'" % key)
+        
+        self._lazy_pointers = {}
+        self._define_properties()
 
 
 def cache(function):
